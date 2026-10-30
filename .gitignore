@@ -1,0 +1,15 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment variables & secrets
+.env
+
+# Database data files (local MySQL instance)
+data/mysql_data/
+
+# OS specific
+.DS_Store
+
