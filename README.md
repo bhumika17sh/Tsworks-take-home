@@ -1,6 +1,6 @@
 # Movie Data Pipeline - Take-Home Assignment
 
-A Data Engineering pipeline that extracts movie and rating data from the **MovieLens** dataset, enriches it via the external **OMDb API**, cleans and normalizes it into a **MySQL** relational database in First Normal Form (1NF), and answers analytical business questions using pure SQL.
+A pipeline that extracts movie and rating data from the **MovieLens** dataset, enriches it via the external **OMDb API**, cleans and normalizes it into a **MySQL** relational database in First Normal Form (1NF), and answers analytical business questions using pure SQL.
 
 ---
 
