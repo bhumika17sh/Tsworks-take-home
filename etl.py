@@ -88,9 +88,9 @@ def fetch_omdb_movie(imdb_id, title, year, cache):
     if key in cache:
         return cache[key], False  # Return cached data (no network call)
 
-    # Skip API request if no API key is provided
-    if not OMDB_API_KEY:
-        return None, False
+    # Skip API request if no key is provided or still the default placeholder
+    if not OMDB_API_KEY or OMDB_API_KEY == "your_omdb_api_key_here":
+        return None, "HALT"
 
     params = {"apikey": OMDB_API_KEY}
     if imdb_id:
@@ -106,12 +106,22 @@ def fetch_omdb_movie(imdb_id, title, year, cache):
         resp = requests.get("http://www.omdbapi.com/", params=params, timeout=5)
         if resp.status_code == 200:
             data = resp.json()
-            cache[key] = data  # Save to cache
-            return data, True  # Network call was made
+            if data.get("Response") == "True":
+                cache[key] = data  # Save to cache
+                return data, True  # Network call was successful
+            elif data.get("Error") in ["Invalid API key!", "Request limit reached!"]:
+                print(f"⚠️ OMDb API: {data.get('Error')} Halting further API calls.")
+                return None, "HALT"
+            else:
+                cache[key] = {"Response": "False"}
+                return None, True
+        elif resp.status_code in [401, 429]:
+            print("⚠️ OMDb API returned status 401/429 (Invalid key or quota exceeded). Halting further API calls.")
+            return None, "HALT"
     except Exception:
-        pass  # If request fails, return None safely without crashing
+        pass
 
-    return None, False
+    return None, True
 
 
 def extract_data():
@@ -192,8 +202,10 @@ def transform_and_enrich_movies(movies_df, links_df, cache):
         director, plot, box_office = None, None, None
         key = imdb_id if imdb_id else f"{title}_{year}".lower()
         if key in cache or (FETCH_LIMIT <= 0 or api_calls < FETCH_LIMIT):
-            omdb_data, was_network = fetch_omdb_movie(imdb_id, title, year, cache)
-            if was_network:
+            omdb_data, api_status = fetch_omdb_movie(imdb_id, title, year, cache)
+            if api_status == "HALT":
+                api_calls = FETCH_LIMIT + 1  # Stop further network requests immediately
+            elif api_status is True:
                 api_calls += 1
                 time.sleep(0.05)
             if omdb_data and omdb_data.get("Response") == "True":
