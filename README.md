@@ -13,6 +13,7 @@ A Data Engineering pipeline that extracts movie and rating data from the **Movie
 - [Analytical Questions & SQL Solutions](#analytical-questions--sql-solutions)
 - [Design Choices & Assumptions](#design-choices--assumptions)
 - [Challenges Faced & Solutions](#challenges-faced--solutions)
+- [Interactive Visual Dashboard (Streamlit & Plotly)](#-interactive-visual-dashboard-streamlit--plotly)
 
 ---
 
@@ -116,10 +117,12 @@ Tsworks-take-home/
 ├── schema.sql                # Complete MySQL DDL (tables, keys, indexes)
 ├── etl.py                    # Python ETL pipeline script (using Pure SQL)
 ├── queries.sql               # Pure SQL queries answering all analytical questions
-├── requirements.txt          # Python dependencies
+├── app.py                    # Interactive Streamlit analytics dashboard & SQL console
+├── requirements.txt          # Core pipeline dependencies
+├── requirements-dashboard.txt# Optional dashboard dependencies (Streamlit & Plotly)
 ├── .env.example              # Environment variables template
 ├── .gitignore                # Git ignore configuration
-└── README.md                 # Complete documentation & presentation guide
+└── README.md                 # Complete project documentation
 ```
 
 ---
@@ -128,39 +131,37 @@ Tsworks-take-home/
 
 ### 1. Requirements
 - Python 3.10+
-- MySQL 8.0+
+- MySQL Server 8.0+ running locally (or remotely)
+- An active OMDb API key (obtainable at [omdbapi.com/apikey.aspx](https://www.omdbapi.com/apikey.aspx))
 
-### 2. Clone Repository & Setup Virtual Environment
+### 2. Virtual Environment Setup
 ```bash
+# Clone the repository
 git clone https://github.com/bhumika17sh/Tsworks-take-home.git
 cd Tsworks-take-home
 
-# Create virtual environment
+# Create and activate Python virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
-# Install required packages
+# Install required dependencies
 pip install -r requirements.txt
 ```
 
-### 3. Configure Database & Environment
-Copy `.env.example` to `.env`:
+### 3. Environment Variables Configuration
+Copy the provided template to create your local `.env` file:
 ```bash
 cp .env.example .env
 ```
-
-Edit `.env` with your MySQL credentials and OMDb API Key:
+Update `.env` with your MySQL credentials and OMDb API key:
 ```ini
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=your_password
+DB_PASSWORD=your_mysql_password
 DB_NAME=movie_dw
 
-# Free OMDb API key (get one in 1 min at http://www.omdbapi.com/apikey.aspx)
-OMDB_API_KEY=your_key_here
-
-# Maximum new external API calls per run (default: 100)
+OMDB_API_KEY=your_omdb_api_key
 OMDB_FETCH_LIMIT=100
 ```
 
@@ -200,8 +201,6 @@ Starting Movie Data Pipeline ETL...
   • Enriched Movies:      123 rows
 ==================================================
 Pipeline completed in 5.01 seconds!
-
-To view analytical results, run: python3 run_queries.py
 ```
 
 ### Step 3: Run the Analytical Queries
@@ -365,3 +364,22 @@ ORDER BY release_year DESC;
 
 ---
 
+## 🎨 Interactive Visual Dashboard (Streamlit & Plotly)
+
+In addition to pure SQL queries, an interactive visual analytics dashboard is provided in [`app.py`](app.py):
+
+### Features:
+1. **Executive KPI Cards**: Real-time totals for movies, ratings, genres, and OMDb enriched records.
+2. **Assignment Visualizations**: Interactive charts corresponding to all Task 5 analytical queries.
+3. **Custom SQL Playground & Live Auto-Charting**: Execute **any arbitrary SQL query** and watch the dashboard dynamically generate interactive Plotly charts (Bar, Line, Area, Scatter, Donut) and export results to CSV.
+4. **Movie Explorer & Live OMDb Enrichment**: Search any movie and trigger live on-demand API enrichment directly into MySQL.
+
+### How to Run:
+```bash
+# Install optional dashboard requirements
+pip install -r requirements-dashboard.txt
+
+# Launch the dashboard
+streamlit run app.py
+```
+The dashboard will open automatically in your browser at `http://localhost:8501`.
